@@ -1,5 +1,5 @@
 esphomeyaml:
-  name: sonoff_p0
+  name: sonoff_shoe_cabinet
   platform: ESP8266
   board: esp01_1m
   board_flash_mode: dout
@@ -20,7 +20,6 @@ mqtt:
   broker: !secret mqtt_broker
   username: !secret mqtt_sonoff_username
   password: !secret mqtt_sonoff_password
-  discovery_retain: false
 
 logger:
 
