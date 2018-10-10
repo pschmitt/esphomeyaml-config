@@ -1,0 +1,4 @@
+config/secrets.yaml
+esphomeyaml.git/
+tmp/
+config/*/*

@@ -1,0 +1,120 @@
+esphomeyaml:
+  name: bedscalepro
+  platform: ESP8266
+  board: d1_mini_pro
+  # Tare on boot
+  on_boot:
+    - priority: -5
+      then:
+        # Initialize tare to 0.0
+        - lambda: id(hx711_tare).push_new_value(0.0);
+    - priority: -10
+      then:
+        # Wait a bit and set tare value from current measurement
+        - delay: 3s
+        - lambda: id(hx711_tare).push_new_value(id(hx711).value + id(hx711_tare).value);
+
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+
+mqtt:
+  broker: !secret mqtt_broker
+  username: !secret mqtt_username
+  password: !secret mqtt_password
+  # on_message:
+  #   # Update tare value
+  #   topic: bedscalepro/tare
+  #   qos: 0
+  #   then:
+  #     lambda: id(hx711_tare).push_new_value(id(hx711).value + id(hx711_tare).value);
+
+
+logger:
+# Uncomment this next session to enable debugging
+# debug:
+# logger:
+#   level: debug
+
+
+ota:
+  password: !secret ota_password
+
+
+# Sensors
+status_led:
+  pin: GPIO2
+
+
+binary_sensor:
+  - platform: status
+    name: "Bed Scale Pro: Status"
+
+
+switch:
+  - platform: restart
+    name: "Bed Scale Pro: Restart"
+
+  - platform: template
+    name: "Bed Scale Pro: Tare"
+    id: action_tare
+    icon: "mdi:relative-scale"
+    # lambda: return false;
+    optimistic: true
+    turn_on_action:
+      - lambda: >-
+          id(hx711_tare).push_new_value(id(hx711).value + id(hx711_tare).value);
+      - delay: 1s
+      - lambda: >-
+          id(action_tare).publish_state(false);
+
+
+sensor:
+  - platform: uptime
+    name: "Bed Scale Pro: Uptime Sensor"
+
+  - platform: wifi_signal
+    name: "Bed Scale Pro: WiFi Signal Sensor"
+    # update_interval: 15s
+
+  - platform: template
+    name: "Bed Scale Pro: HX711 Value (RAW)"
+    lambda: >-
+      return id(hx711).raw_value;
+    update_interval: 2s
+    icon: "mdi:filter-remove"
+    filters:
+
+  - platform: template
+    name: "Bed Scale Pro: HX711 Tare Value"
+    id: hx711_tare
+    accuracy_decimals: 2
+    icon: "mdi:scale-balance"
+    lambda: return {};
+    filters:
+      - heartbeat: 5s
+
+  - platform: hx711
+    id: hx711
+    name: "Bed Scale Pro: HX711 Value"
+    dout_pin: 4
+    clk_pin: 5
+    gain: 128
+    update_interval: 2s
+    accuracy_decimals: 2
+    filters:
+      - lambda: |-
+          return (x / 10000.0) - 2340.0 - id(hx711_tare).value;
+      - or:
+        - heartbeat: 2s
+        - delta: 0.05
+    # on_raw_value:
+    #   then:
+    #     - mqtt.publish:
+    #         topic: 'bedscalepro/sensor/bed_scale_pro_hx711_value_raw/state'
+    #         payload: !lambda >-
+    #           char str [100];
+    #           sprintf(str, "%.0f", id(hx711).raw_value);
+    #           return str;
