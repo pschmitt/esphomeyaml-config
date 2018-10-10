@@ -8,7 +8,7 @@ esphomeyaml:
   on_boot:
     priority: 50
     then:
-      - light.turn_on: led
+      - switch.turn_on: template_relay_1
 
 wifi:
   ssid: !secret wifi_ssid
@@ -51,27 +51,24 @@ switch:
     name: "Sonoff p0: Relay (w/o led)"
     pin: GPIO12
     internal: true
-    inverted: true  # turn on relay on boot
   - platform: template
     id: template_relay_1
     name: "Sonoff p0: Relay"
-    inverted: true  # because the underlying relay is inverted
-    lambda: return id(relay_1).value;
+    optimistic: true
     turn_on_action:
       then:
         - switch.turn_on: relay_1
-        - light.turn_off: led  # NOTE: inverted
+        - light.turn_on: led
     turn_off_action:
       then:
         - switch.turn_off: relay_1
-        - light.turn_on: led  # NOTE: inverted
+        - light.turn_off: led
 
 output:
   - platform: esp8266_pwm
     id: basic_green_led
-    pin:
-      number: GPIO13
-      inverted: true
+    inverted: true
+    pin: GPIO13
 
 light:
   - platform: monochromatic
