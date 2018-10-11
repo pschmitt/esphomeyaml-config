@@ -1,21 +1,26 @@
 esphomeyaml:
-  name: sonoff_bathroom_mirror_light
+  name: sonoff_p0
   platform: ESP8266
   board: esp01_1m
   board_flash_mode: dout
   # FIXME without this the template switch is spamming
   esphomelib_version: dev
+  on_boot:
+    priority: 50
+    then:
+      - light.turn_on: led
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  domain: .lan
   hostname: sonoff-bathroom-mirror-light
+  domain: .lan
 
 mqtt:
   broker: !secret mqtt_broker
   username: !secret mqtt_sonoff_username
   password: !secret mqtt_sonoff_password
+  discovery_retain: true
 
 logger:
 
@@ -32,11 +37,14 @@ binary_sensor:
       mode: INPUT_PULLUP
       inverted: true
     on_click:
-      min_length: 50ms
-      max_length: 350ms
-      then:
-        - switch.toggle:
-            id: template_relay_1
+      - min_length: 50ms
+        max_length: 350ms
+        then:
+          - switch.toggle: template_relay_1
+      - min_length: 3000ms
+        max_length: 6000ms
+        then:
+          - switch.toggle: restart
 
 switch:
   - platform: restart
@@ -53,32 +61,22 @@ switch:
     name: "Sonoff Bathroom Mirror Light: Relay"
     icon: "mdi:spotlight"
     inverted: true  # because the underlying relay is inverted
-    # FIXME
-    # This next code will spam the MQTT server
-    # https://github.com/OttoWinter/esphomeyaml/issues/155
-    # Once the next version (1.8.3?) is out this should work again
     lambda: return id(relay_1).value;
-    # optimistic: true # FIXME delete this when the new version is available
     turn_on_action:
       then:
-        - switch.turn_on:
-            id: relay_1
-        - light.turn_on:
-            id: led
+        - switch.turn_on: relay_1
+        - light.turn_off: led  # NOTE: inverted
     turn_off_action:
       then:
-        - switch.turn_off:
-            id: relay_1
-        - light.turn_off:
-            id: led
-
+        - switch.turn_off: relay_1
+        - light.turn_on: led  # NOTE: inverted
 
 output:
   - platform: esp8266_pwm
     id: basic_green_led
     pin:
       number: GPIO13
-      inverted: false # turn on by default since the relay is on on boot
+      inverted: true
 
 light:
   - platform: monochromatic
