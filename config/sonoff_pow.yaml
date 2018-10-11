@@ -90,22 +90,12 @@ switch:
         - light.turn_on: blue_led  # NOTE: inverted
 
 output:
-  # https://community.home-assistant.io/t/esphomelib-a-comprehensive-solution-for-using-esps-with-home-assistant/55349/31
   - platform: gpio
     id: basic_blue_led
     pin: GPIO15
 
-  # - platform: esp8266_pwm
-  #   id: basic_green_led
-  #   pin:
-  #     number: GPIO13
-  #     inverted: true
-
 light:
-  # - platform: monochromatic
   - platform: binary
     id: blue_led
     name: "Sonoff POW: Blue LED"
-    # output: basic_green_led
     output: basic_blue_led
-    # default_transition_length: 0s
