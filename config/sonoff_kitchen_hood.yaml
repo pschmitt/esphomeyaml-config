@@ -20,7 +20,7 @@ mqtt:
   broker: !secret mqtt_broker
   username: !secret mqtt_sonoff_username
   password: !secret mqtt_sonoff_password
-  discovery_retain: false
+  discovery_retain: true
 
 logger:
 
