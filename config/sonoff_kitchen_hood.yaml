@@ -27,6 +27,12 @@ logger:
 ota:
   password: !secret ota_password
 
+sensor:
+  - platform: uptime
+    name: "Sonoff Kitchen Hood: Uptime Sensor"
+  - platform: wifi_signal
+    name: "Sonoff Kitchen Hood: WiFi Signal Sensor"
+
 binary_sensor:
   - platform: status
     name: "Sonoff Kitchen Hood: Status"
@@ -41,6 +47,7 @@ binary_sensor:
       max_length: 350ms
       then:
         - switch.toggle: template_relay_1
+
 
 switch:
   - platform: restart

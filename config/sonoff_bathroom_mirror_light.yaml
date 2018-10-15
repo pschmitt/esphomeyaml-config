@@ -27,6 +27,12 @@ logger:
 ota:
   password: !secret ota_password
 
+sensor:
+  - platform: uptime
+    name: "Sonoff Bathroom Mirror Light: Uptime Sensor"
+  - platform: wifi_signal
+    name: "Sonoff Bathroom Mirror Light: WiFi Signal Sensor"
+
 binary_sensor:
   - platform: status
     name: "Sonoff Bathroom Mirror Light: Status"

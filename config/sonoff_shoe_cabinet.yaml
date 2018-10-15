@@ -41,6 +41,12 @@ binary_sensor:
       then:
         - switch.toggle: template_relay_1
 
+sensor:
+  - platform: uptime
+    name: "Sonoff Shoe Cabinet: Uptime Sensor"
+  - platform: wifi_signal
+    name: "Sonoff Shoe Cabinet: WiFi Signal Sensor"
+
 switch:
   - platform: restart
     id: restart
