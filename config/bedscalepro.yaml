@@ -33,7 +33,7 @@ mqtt:
 
 
 logger:
-# Uncomment this next session to enable debugging
+# Uncomment this next section to enable debugging
 # debug:
 # logger:
 #   level: debug
